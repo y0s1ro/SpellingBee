@@ -4,25 +4,25 @@ import numpy as np
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
-
+PATH = 'words.txt'
 
 class HexagonButton:
     def __init__(self, canvas, x, y, size, text, fill_color='lightblue'):
         self.canvas = canvas
         self.text = text
         self.hex_group_tag = create_hexagon(canvas, x, y, size, text, fill_color)
-        canvas.tag_bind(self.hex_group_tag, "<Button-1>", self.on_hex_click)
+        canvas.tag_bind(self.hex_group_tag, "<Button-1>", self._on_hex_click)
 
-    def on_hex_click(self, event):
+    def _on_hex_click(self, event):
         print(self.hex_group_tag)
 
 class LetterButtons:
-    def __init__(self, canvas):
+    def __init__(self, canvas, letters, central_letter):
         self.canvas = canvas
         self.buttons = []
-        self.create_buttons()
+        self.create_buttons(letters, central_letter)
 
-    def create_buttons(self):
+    def create_buttons(self, letters, central_letter):
         hex_centers = self._calculate_hexagons_centers(50, 0)
         #Create hexagons for each letter
         np.random.shuffle(letters)
@@ -64,19 +64,21 @@ def create_hexagon(canvas, x, y, size, text, fill_color="lightblue", outline_col
     
     return group_tag
 
-def main():
-    global words, letters, central_letter
-    words = open("words.txt").read().splitlines()[1:]
-    letters = open("words.txt").read().splitlines()[0].split()[1:]
-    central_letter = open("words.txt").read()[0]
+def read_words(path):
+    words = open(path).read().splitlines()[1:]
+    letters = open(path).read().splitlines()[0].split()[1:]
+    central_letter = open(path).read()[0]
+    return words, letters, central_letter
+    
 
+def main():
     root = tk.Tk()
     root.title("Spelling Bee")
     
     canvas = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
     canvas.pack()
-    
-    buttons = LetterButtons(canvas)
+    words, letters, central_letter = read_words(PATH)
+    buttons = LetterButtons(canvas, letters, central_letter)
 
     root.mainloop()
 
