@@ -1,9 +1,10 @@
 import tkinter as tk
 import math
-import time
+import numpy as np
 
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
+
 
 class HexagonButton:
     def __init__(self, canvas, x, y, size, text, fill_color='lightblue'):
@@ -23,11 +24,12 @@ class LetterButtons:
 
     def create_buttons(self):
         hex_centers = self._calculate_hexagons_centers(50, 0)
-        #Create hexagons 
-        for i, center in enumerate(hex_centers):
-            hex_group_tag = HexagonButton(self.canvas, center[0], center[1], 50, chr(65+i))
+        #Create hexagons for each letter
+        np.random.shuffle(letters)
+        for center, letter in zip(hex_centers, letters):
+            hex_group_tag = HexagonButton(self.canvas, center[0], center[1], 50, letter)
             self.buttons.append(hex_group_tag)
-        hex_group_tag = HexagonButton(self.canvas, CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 50, 'E', 'lightyellow')
+        hex_group_tag = HexagonButton(self.canvas, CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 50, central_letter, 'lightyellow')
         self.buttons.append(hex_group_tag)
 
     def _calculate_hexagons_centers(self, hex_size, hex_spacing):
@@ -63,13 +65,19 @@ def create_hexagon(canvas, x, y, size, text, fill_color="lightblue", outline_col
     return group_tag
 
 def main():
+    global words, letters, central_letter
+    words = open("words.txt").read().splitlines()[1:]
+    letters = open("words.txt").read().splitlines()[0].split()[1:]
+    central_letter = open("words.txt").read()[0]
+
     root = tk.Tk()
-    root.title("Hexagon Button with Animation")
+    root.title("Spelling Bee")
     
     canvas = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
     canvas.pack()
     
     buttons = LetterButtons(canvas)
+
     root.mainloop()
 
 if __name__ == "__main__":
