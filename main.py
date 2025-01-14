@@ -1,7 +1,6 @@
 import tkinter as tk
 import math
 import numpy as np
-import time
 
 #Size of the canvas
 CANVAS_WIDTH = 800
@@ -85,7 +84,7 @@ class GUI:
         check_button = tk.Button(button_frame, text="Check", command=self._check_word, **button_style)
         check_button.pack(side=tk.LEFT, padx=10)
 
-        clear_button = tk.Button(button_frame, text="Clear", command=self._clear_word, **button_style)
+        clear_button = tk.Button(button_frame, text="Delete", command=self._clear_word, **button_style)
         clear_button.pack(side=tk.LEFT, padx=10)
 
         shuffle_button = tk.Button(button_frame, text="Shuffle", command=self._shuffle_letters, **button_style)
@@ -93,17 +92,27 @@ class GUI:
         
     def _check_word(self):
         if self.typed_word.get().lower() in self.words:
-            self.input_line.config(fg="green")
-            time.sleep(1)
+            self.display_message("Nice!")
+        elif len(self.typed_word.get().lower()) < 4:
+            self.display_message("Word is too short")
+        elif self.central_letter not in self.typed_word.get().lower():
+            self.display_message("Central letter is missing")
         else:
-            self.input_line.config(fg="red")
-            print(self.words)
+            self.display_message("Not in word list")
 
     def _clear_word(self):
-        self.typed_word.set("")
+        self.typed_word.set(self.typed_word.get()[:-1])
 
     def _shuffle_letters(self):
         self._create_buttons(self.letters, self.central_letter)
+
+    def display_message(self, message):
+        busted_display = tk.Label(self.canvas, text=message, font=("Arial", "15"))
+        busted_display.place(x=CANVAS_WIDTH/2, y=50, anchor=tk.CENTER)
+        self.canvas.after(800, busted_display.destroy)
+        if message == "Nice!":
+            self.words.remove(self.typed_word.get().lower())
+        self.typed_word.set("")
 
 
 def create_hexagon(canvas, x, y, size, text, fill_color="lightblue", outline_color="black"):
