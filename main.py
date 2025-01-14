@@ -95,7 +95,7 @@ class GUI:
             self.display_message("Nice!")
         elif len(self.typed_word.get().lower()) < 4:
             self.display_message("Word is too short")
-        elif self.central_letter not in self.typed_word.get().lower():
+        elif self.central_letter not in self.typed_word.get():
             self.display_message("Central letter is missing")
         else:
             self.display_message("Not in word list")
@@ -107,9 +107,22 @@ class GUI:
         self._create_buttons(self.letters, self.central_letter)
 
     def display_message(self, message):
-        busted_display = tk.Label(self.canvas, text=message, font=("Arial", "15"))
-        busted_display.place(x=CANVAS_WIDTH/2, y=50, anchor=tk.CENTER)
-        self.canvas.after(800, busted_display.destroy)
+        width = len(message) * 7 + 10
+        rounded_label = tk.Canvas(self.canvas, width=width, height=40, bg="white", highlightthickness=0)
+        rounded_label.place(x=CANVAS_WIDTH/2, y=50, anchor=tk.CENTER)
+        
+        
+        radius = 15
+        rounded_label.create_arc((0, 0, radius, radius), start=90, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((width-radius, 0, width, radius), start=0, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((0, 40-radius, radius, 40), start=180, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((width-radius, 40-radius, width, 40), start=270, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_rectangle((radius/2, 0, width-radius/2, 40), fill="lightgrey", outline="lightgrey")
+        rounded_label.create_rectangle((0, radius/2, width, 40-radius/2), fill="lightgrey", outline="lightgrey")
+        
+        rounded_label.create_text(width/2, 20, text=message, font=("Arial", 15), fill="black", anchor=tk.CENTER)
+        
+        self.canvas.after(800, rounded_label.destroy)
         if message == "Nice!":
             self.words.remove(self.typed_word.get().lower())
         self.typed_word.set("")
