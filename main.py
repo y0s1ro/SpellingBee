@@ -8,6 +8,42 @@ CANVAS_HEIGHT = 800
 
 PATH = 'words.txt' #Path to the file with words
 
+class SideBar:
+    def __init__(self, canvas):
+        self.found_words = []
+        self.canvas = canvas
+        self.sidebar_canvas = self._create_sidebar()
+    
+    def _create_sidebar(self):
+        width = CANVAS_HEIGHT/2-50
+        height = CANVAS_HEIGHT-50
+        rounded_label = tk.Canvas(self.canvas, width=width, height=height, bg="white", highlightthickness=0)
+        rounded_label.place(x=CANVAS_WIDTH-25, y=CANVAS_HEIGHT/2, anchor=tk.E)
+        
+        
+        radius = 15
+        rounded_label.create_arc((0, 0, radius, radius), start=90, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((width-radius, 0, width, radius), start=0, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((0, height-radius, radius, height), start=180, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_arc((width-radius, height-radius, width, height), start=270, extent=90, fill="lightgrey", outline="lightgrey")
+        rounded_label.create_rectangle((radius/2, 0, width-radius/2, height), fill="lightgrey", outline="lightgrey")
+        rounded_label.create_rectangle((0, radius/2, width, height-radius/2), fill="lightgrey", outline="lightgrey")
+        
+        rounded_label.create_text(width/2, 20, text=f"You found {len(self.found_words)} word", font=("Arial", 15), fill="black", anchor=tk.CENTER, tags="word")
+
+        for i, word in enumerate(self.found_words):
+            rounded_label.create_text(width/2, 50 + 30*i, text=word, font=("Arial", 15), fill="black", anchor=tk.CENTER, tags="word")
+
+        return rounded_label
+    def update_sidebar(self, found_word):
+        width = CANVAS_HEIGHT/2-50
+        self.found_words.append(found_word)
+        self.sidebar_canvas.delete("word")
+        self.sidebar_canvas.create_text(width/2, 20, text=f"You found {len(self.found_words)} word", font=("Arial", 15), fill="black", anchor=tk.CENTER, tags="word")
+        print(self.found_words)
+        for i, word in enumerate(self.found_words):
+            print(word)
+            self.sidebar_canvas.create_text(width/2, 50 + 30*i, text=word, font=("Arial", 15), fill="black", anchor=tk.CENTER, tags="word")
 class HexagonButton:
     def __init__(self, canvas, x, y, size, text, typed_word, fill_color='lightblue'):
         self.canvas = canvas
@@ -17,9 +53,11 @@ class HexagonButton:
         canvas.tag_bind(self.hex_group_tag, "<Button-1>", self._on_hex_click)
 
     def _on_hex_click(self, event):
-        # Update the StringVar to append the letter
         current_text = self.typed_word_var.get()
-        self.typed_word_var.set(current_text + self.text)
+        if len(current_text) < 15:
+            self.typed_word_var.set(current_text + self.text)
+
+
 
 class GUI:
     def __init__(self, canvas, letters, central_letter, words):
@@ -31,6 +69,7 @@ class GUI:
         self.typed_word, self.input_line = self._create_input_line()
         self._create_buttons(letters, central_letter)
         self._create_control_buttons()
+        self.sidebar = SideBar(canvas)
         
     def _create_buttons(self, letters, central_letter):
         hex_centers = self._calculate_hexagons_centers(50, 0)
@@ -39,11 +78,11 @@ class GUI:
         for center, letter in zip(hex_centers, letters):
             hex_group_tag = HexagonButton(self.canvas, center[0], center[1], 50, letter, self.typed_word)
             self.buttons.append(hex_group_tag)
-        hex_group_tag = HexagonButton(self.canvas, CANVAS_WIDTH/2, CANVAS_HEIGHT/2, 50, central_letter, self.typed_word, 'lightyellow')
+        hex_group_tag = HexagonButton(self.canvas, CANVAS_WIDTH/2-200, CANVAS_HEIGHT/2, 50, central_letter, self.typed_word, 'lightyellow')
         self.buttons.append(hex_group_tag)
 
     def _calculate_hexagons_centers(self, hex_size, hex_spacing):
-        canvas_center = (CANVAS_WIDTH/2, CANVAS_HEIGHT/2)  #Center of the canvas
+        canvas_center = (CANVAS_WIDTH/2-200, CANVAS_HEIGHT/2)  #Center of the canvas
         hex_centers = []
         #Calculates the center of each hexagon
         for i in range(6):
@@ -65,7 +104,7 @@ class GUI:
                             fg="black",
                             underline=0
                             )
-        typed_word.place(x=400, y=200, anchor=tk.CENTER)
+        typed_word.place(x=CANVAS_WIDTH/2-200, y=200, anchor=tk.CENTER)
         return text_var, typed_word
     
     def _create_control_buttons(self):
@@ -79,7 +118,7 @@ class GUI:
             "highlightbackground":"white"   
         }
         button_frame = tk.Frame(self.canvas, bg="white")
-        button_frame.place(x=CANVAS_WIDTH/2, y=CANVAS_HEIGHT - 200, anchor=tk.CENTER)
+        button_frame.place(x=CANVAS_WIDTH/2-200, y=CANVAS_HEIGHT - 200, anchor=tk.CENTER)
 
         check_button = tk.Button(button_frame, text="Check", command=self._check_word, **button_style)
         check_button.pack(side=tk.LEFT, padx=10)
@@ -92,6 +131,7 @@ class GUI:
         
     def _check_word(self):
         if self.typed_word.get().lower() in self.words:
+            self.sidebar.update_sidebar(self.typed_word.get().lower())
             self.display_message("Nice!")
         elif len(self.typed_word.get().lower()) < 4:
             self.display_message("Word is too short")
@@ -109,8 +149,7 @@ class GUI:
     def display_message(self, message):
         width = len(message) * 7 + 10
         rounded_label = tk.Canvas(self.canvas, width=width, height=40, bg="white", highlightthickness=0)
-        rounded_label.place(x=CANVAS_WIDTH/2, y=50, anchor=tk.CENTER)
-        
+        rounded_label.place(x=CANVAS_WIDTH/2-200, y=50, anchor=tk.CENTER)
         
         radius = 15
         rounded_label.create_arc((0, 0, radius, radius), start=90, extent=90, fill="lightgrey", outline="lightgrey")
