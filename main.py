@@ -1,13 +1,50 @@
 import tkinter as tk
 import math
 import numpy as np
+import json
+from parse_words import parse
 
 #Size of the canvas
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
 
-PATH = 'words.txt' #Path to the file with words
+PATH = 'words.json' #Path to the file with words
 
+class Menu:
+    def __init__(self, canvas, root):
+        self.canvas = canvas
+        self.root = root
+        self._create_menu()
+    
+    def _create_menu(self):
+        menu_frame = tk.Frame(self.canvas, bg="white")
+        menu_frame.place(x=CANVAS_WIDTH/2, y=20, anchor=tk.N)
+        #start_text = tk.Label(menu_frame, text="Choose level to play", font=("Arial", 20), bg="white")
+        #start_text.place(x=0, y=0, anchor=tk.N)
+        button_style = {
+            "bg": "white",       
+            "fg": "black",        
+            "font": ("Arial", 18),
+            "bd": 0,              
+            "highlightthickness": 0,  
+            "relief": "flat", 
+            "highlightbackground":"white"   
+        }
+
+        for level in range(1, 32):
+            check_button = tk.Button(menu_frame, text=level, command=lambda lvl=level: self._start_game(lvl), **button_style)
+            check_button.grid(row=(level-1)//10, column=(level-1)%10, padx=10, pady=10)
+        
+    
+    def _start_game(self, level):
+        self.canvas.destroy()
+        #parse('https://www.nytimes.com/puzzles/spelling-bee')
+        if isinstance(level, int):
+            words, letters, central_letter = read_words(PATH, f'December {level}, 2024')
+        game = tk.Canvas(self.root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
+        game.pack()
+        GUI(game, letters, central_letter, words)
+        
 class SideBar:
     def __init__(self, canvas):
         self.found_words = []
@@ -221,25 +258,31 @@ def create_hexagon(canvas, x, y, size, text, fill_color="lightblue", outline_col
     
     return group_tag
 
-def read_words(path):
-    words = open(path).read().splitlines()[1:]
-    letters = open(path).read().splitlines()[0].split()[1:]
-    central_letter = open(path).read()[0]
+def read_words(path, date):
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        return 'File not found'
+    
+    if date not in data:
+        return 'Date not found'
+    
+    words = data[date]['words']
+    letters = data[date]['letters']
+    central_letter = data[date]['central letter']
     return words, letters, central_letter
+
 
 def main():
     root = tk.Tk()
     root.title("Spelling Bee")
     
-    canvas = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
-    canvas.pack()
+    start_menu = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
+    start_menu.pack()
 
-    #Read words from a file
-    words, letters, central_letter = read_words(PATH)
-    words = list(map(str.lower, words))
-
-    gui = GUI(canvas, letters, central_letter, words)
-
+    Menu(start_menu, root)
+    
     root.mainloop()
 
 if __name__ == "__main__":
