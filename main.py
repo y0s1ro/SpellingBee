@@ -81,6 +81,8 @@ class GUI:
         self._create_buttons(letters, central_letter)
         self._create_control_buttons()
         self.sidebar = SideBar(canvas)
+
+        self.canvas.bind_all("<Key>", self._on_key_press)
         
     def _create_buttons(self, letters, central_letter):
         hex_centers = self._calculate_hexagons_centers(50, 0)
@@ -135,7 +137,7 @@ class GUI:
         check_button = tk.Button(button_frame, text="Check", command=self._check_word, **button_style)
         check_button.pack(side=tk.LEFT, padx=10)
 
-        clear_button = tk.Button(button_frame, text="Delete", command=self._clear_word, **button_style)
+        clear_button = tk.Button(button_frame, text="Delete", command=self._delete, **button_style)
         clear_button.pack(side=tk.LEFT, padx=10)
 
         shuffle_button = tk.Button(button_frame, text="Shuffle", command=self._shuffle_letters, **button_style)
@@ -145,6 +147,11 @@ class GUI:
         if self.typed_word.get().lower() in self.words:
             self.sidebar.update_sidebar(self.typed_word.get().lower())
             self.display_message("Nice!")
+        elif self.typed_word.get() == "":
+            self.display_message("Enter a word")
+        #Check if the word contains only valid letters
+        elif not all(char in (str(self.letters)+self.central_letter) for char in self.typed_word.get()):
+            self.display_message("Bad letters")
         elif len(self.typed_word.get().lower()) < 4:
             self.display_message("Word is too short")
         elif self.central_letter not in self.typed_word.get():
@@ -152,7 +159,7 @@ class GUI:
         else:
             self.display_message("Not in word list")
 
-    def _clear_word(self):
+    def _delete(self):
         self.typed_word.set(self.typed_word.get()[:-1])
 
     def _shuffle_letters(self):
@@ -172,11 +179,27 @@ class GUI:
         rounded_label.create_rectangle((0, radius/2, width, 40-radius/2), fill="lightgrey", outline="lightgrey")
         
         rounded_label.create_text(width/2, 20, text=message, font=("Arial", 15), fill="black", anchor=tk.CENTER)
-        
-        self.canvas.after(800, rounded_label.destroy)
+        if len(self.words) != 0:
+            self.canvas.after(800, rounded_label.destroy)
         if message == "Nice!":
             self.words.remove(self.typed_word.get().lower())
+            if len(self.words) == 0:
+                self.display_message("You found all words!")
+                self.typed_word.set("")
+                
         self.typed_word.set("")
+
+    def _on_key_press(self, event):
+        # Check if the pressed key is a valid letter
+        if event.char.isalpha():  # Checks if the key is a letter
+            current_text = self.typed_word.get()
+            if len(current_text) < 15:
+                self.typed_word.set(current_text + event.char.upper())
+        elif event.keysym == "BackSpace":
+            self._delete()
+        elif event.keysym == "Return":
+            self._check_word()
+            
 
 def create_hexagon(canvas, x, y, size, text, fill_color="lightblue", outline_color="black"):
     #Calculate the vertices of the hexagon
