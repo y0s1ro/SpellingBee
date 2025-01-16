@@ -37,10 +37,12 @@ def find_letters(words):
     
 
 def create_json(date, central_letter, letters, words):
+    words_dict = {word: False for word in words}
     data = {date: {
+            'words_guessed': 0,
             'central letter': central_letter,
             'letters': letters,
-            'words': words}
+            'words': words_dict}
             }
     try:
         with open('words.json', 'r') as f:
@@ -50,7 +52,6 @@ def create_json(date, central_letter, letters, words):
 
     if date not in existing_data:
         existing_data.update(data)
-
         with open('words.json', 'w') as f:
             json.dump(existing_data, f, indent=4)
 

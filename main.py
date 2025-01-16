@@ -32,8 +32,8 @@ class Menu:
         }
 
         for level in range(1, 32):
-            check_button = tk.Button(menu_frame, text=level, command=lambda lvl=level: self._start_game(lvl), **button_style)
-            check_button.grid(row=(level-1)//10, column=(level-1)%10, padx=10, pady=10)
+            check_button = tk.Button(menu_frame, text=f"{level}\n{level} words", command=lambda lvl=level: self._start_game(lvl), **button_style)
+            check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
         
     
     def _start_game(self, level):
@@ -219,6 +219,7 @@ class GUI:
         if len(self.words) != 0:
             self.canvas.after(800, rounded_label.destroy)
         if message == "Nice!":
+
             self.words.remove(self.typed_word.get().lower())
             if len(self.words) == 0:
                 self.display_message("You found all words!")
@@ -267,8 +268,7 @@ def read_words(path, date):
     
     if date not in data:
         return 'Date not found'
-    
-    words = data[date]['words']
+    words = list(data[date]['words'].keys())
     letters = data[date]['letters']
     central_letter = data[date]['central letter']
     return words, letters, central_letter
