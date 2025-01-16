@@ -11,8 +11,10 @@ CANVAS_HEIGHT = 800
 PATH = 'words.json' #Path to the file with words
 
 class Menu:
-    def __init__(self, canvas, root):
-        self.canvas = canvas
+    def __init__(self, root):
+        start_menu = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
+        start_menu.pack()
+        self.canvas = start_menu
         self.root = root
         self._create_menu()
     
@@ -189,6 +191,10 @@ class GUI:
 
         shuffle_button = tk.Button(button_frame, text="Shuffle", command=self._shuffle_letters, **button_style)
         shuffle_button.pack(side=tk.LEFT, padx=10)
+
+        menu_button = tk.Button(self.canvas, text="Menu", command=self._return_to_menu, **button_style)
+        menu_button.place(x=50, y=50, anchor=tk.NW)
+
         
     def _check_word(self):
         if self.typed_word.get().lower() in self.words:
@@ -211,6 +217,10 @@ class GUI:
 
     def _shuffle_letters(self):
         self._create_buttons(self.letters, self.central_letter)
+
+    def _return_to_menu(self):
+        self.canvas.destroy()
+        Menu(self.canvas.master)
 
     def display_message(self, message):
         width = len(message) * 7 + 10
@@ -295,11 +305,8 @@ def read_words(path, date):
 def main():
     root = tk.Tk()
     root.title("Spelling Bee")
-    
-    start_menu = tk.Canvas(root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
-    start_menu.pack()
 
-    Menu(start_menu, root)
+    Menu(root)
     
     root.mainloop()
 
