@@ -9,7 +9,7 @@ from parse_words import parse
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
 
-PATH = 'words.json' #Path to the file with words
+PATH = '/Users/yuriizaika/Documents/python/Projects/SpellingBee/words_ira.json' #Path to the file with words
 
 class Menu:
     def __init__(self, root):
@@ -320,7 +320,10 @@ def read_words(path, date):
     
     if date not in data:
         return 'Date not found'
-    words = list(data[date]['words'].keys())
+    words = []
+    for word in data[date]['words']:
+        if not data[date]['words'][word]:
+            words.append(word)
     letters = data[date]['letters']
     central_letter = data[date]['central letter']
     return words, letters, central_letter
