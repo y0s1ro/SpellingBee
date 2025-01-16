@@ -2,6 +2,7 @@ import tkinter as tk
 import math
 import numpy as np
 import json
+import datetime
 from parse_words import parse
 
 #Size of the canvas
@@ -20,11 +21,11 @@ class Menu:
     
     def _create_menu(self):
         menu_frame = tk.Frame(self.canvas, bg="white")
-        menu_frame.place(x=CANVAS_WIDTH/2, y=20, anchor=tk.N)
-        #start_text = tk.Label(menu_frame, text="Choose level to play", font=("Arial", 20), bg="white")
-        #start_text.place(x=0, y=0, anchor=tk.N)
+        menu_frame.place(x=CANVAS_WIDTH/2, y=40, anchor=tk.N)
+        start_text = tk.Label(self.canvas, text="Choose level to play", font=("Arial", 20), bg="white", fg="black")
+        start_text.place(x=CANVAS_WIDTH/2, y=10, anchor=tk.N)
         button_style = {
-            "bg": "white",       
+            "bg": "lightblue",       
             "fg": "black",        
             "font": ("Arial", 18),
             "bd": 0,              
@@ -35,19 +36,42 @@ class Menu:
         with open(PATH, 'r') as f:
             data = json.load(f)
             for level in range(1, 32):
-                check_button = tk.Button(menu_frame, text=f"{level}\n{data[f'December {level}, 2024']['words_guessed']} words", command=lambda lvl=level: self._start_game(lvl), **button_style)
-                check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
-        
-        
-    
+                if data[f'December {level}, 2024']['words_guessed']!=len(data[f'December {level}, 2024']['words'].keys()):
+                    check_button = tk.Button(menu_frame, text=f"{level}\n{data[f'December {level}, 2024']['words_guessed']} words",
+                                              command=lambda lvl=level: self._start_game(f'December {level}, 2024'), **button_style)
+                    check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
+                else:
+                    check_button = tk.Button(menu_frame, text=f"{level}\nCompleted", state='disabled', **button_style)
+                    check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
+
+        input_frame = tk.Frame(self.canvas, bg="white")
+        input_frame.place(x=CANVAS_WIDTH/2, y=CANVAS_HEIGHT-100, anchor=tk.S)
+
+        input_label = tk.Label(input_frame, text="Enter date to load level from that day", font=("Arial", 15), bg="white", fg="black")
+        input_label.pack(side=tk.LEFT, padx=10)
+
+        self.input_var = tk.StringVar()
+        input_entry = tk.Entry(input_frame, textvariable=self.input_var, font=("Arial", 15), bg="white", fg="black")
+        input_entry.insert(0, "20250115")
+        input_entry.pack(side=tk.LEFT, padx=10)
+
+        input_button = tk.Button(input_frame, text="Load", command=self._load_level, **button_style)
+        input_button.pack(side=tk.LEFT, padx=10)
+    def _load_level(self):
+        level = self.input_var.get()
+        parse(f'https://nytbee.com/Bee_{level}.html')
+        year = level[:4]
+        month = level[4:6]
+        day = level[6:]
+        level = f"{datetime.date(1900, int(month), 1).strftime('%B')} {int(day)}, {year}"
+        self._start_game(level)
+
     def _start_game(self, level):
         self.canvas.destroy()
-        #parse('https://www.nytimes.com/puzzles/spelling-bee')
-        if isinstance(level, int):
-            words, letters, central_letter = read_words(PATH, f'December {level}, 2024')
+        words, letters, central_letter = read_words(PATH, level)
         game = tk.Canvas(self.root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
         game.pack()
-        GUI(game, letters, central_letter, words, date=f'December {level}, 2024')
+        GUI(game, letters, central_letter, words, date=level)
         
 class SideBar:
     def __init__(self, canvas, date):
@@ -193,7 +217,7 @@ class GUI:
         shuffle_button.pack(side=tk.LEFT, padx=10)
 
         menu_button = tk.Button(self.canvas, text="Menu", command=self._return_to_menu, **button_style)
-        menu_button.place(x=50, y=50, anchor=tk.NW)
+        menu_button.place(x=25, y=25, anchor=tk.NW)
 
         
     def _check_word(self):

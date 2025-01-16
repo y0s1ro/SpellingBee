@@ -1764,5 +1764,53 @@
             "yenta": false,
             "yente": false
         }
+    },
+    "January 15, 2025": {
+        "words_guessed": 1,
+        "central letter": "I",
+        "letters": [
+            "T",
+            "U",
+            "E",
+            "D",
+            "Z",
+            "P"
+        ],
+        "words": {
+            "deputize": false,
+            "deputized": false,
+            "died": false,
+            "diet": false,
+            "dieted": false,
+            "dipped": false,
+            "ditz": false,
+            "dizzied": false,
+            "eddied": false,
+            "edit": false,
+            "edited": false,
+            "peptide": false,
+            "petit": false,
+            "petite": false,
+            "pied": false,
+            "pipe": false,
+            "piped": false,
+            "pipet": false,
+            "pipette": false,
+            "pipit": false,
+            "pitied": false,
+            "pitted": false,
+            "puttied": false,
+            "tepid": false,
+            "tide": false,
+            "tided": false,
+            "tidied": false,
+            "tied": false,
+            "tipi": false,
+            "tipped": false,
+            "tippet": false,
+            "tutti": false,
+            "zipped": false,
+            "ziti": true
+        }
     }
 }
