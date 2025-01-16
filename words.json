@@ -1,6 +1,6 @@
 {
     "December 1, 2024": {
-        "words_guessed": 0,
+        "words_guessed": 2,
         "central letter": "A",
         "letters": [
             "E",
@@ -11,8 +11,8 @@
             "D"
         ],
         "words": {
-            "abed": false,
-            "abide": false,
+            "abed": true,
+            "abide": true,
             "abided": false,
             "adage": false,
             "added": false,

@@ -30,10 +30,12 @@ class Menu:
             "relief": "flat", 
             "highlightbackground":"white"   
         }
-
-        for level in range(1, 32):
-            check_button = tk.Button(menu_frame, text=f"{level}\n{level} words", command=lambda lvl=level: self._start_game(lvl), **button_style)
-            check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
+        with open(PATH, 'r') as f:
+            data = json.load(f)
+            for level in range(1, 32):
+                check_button = tk.Button(menu_frame, text=f"{level}\n{data[f'December {level}, 2024']['words_guessed']} words", command=lambda lvl=level: self._start_game(lvl), **button_style)
+                check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
+        
         
     
     def _start_game(self, level):
@@ -43,11 +45,16 @@ class Menu:
             words, letters, central_letter = read_words(PATH, f'December {level}, 2024')
         game = tk.Canvas(self.root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
         game.pack()
-        GUI(game, letters, central_letter, words)
+        GUI(game, letters, central_letter, words, date=f'December {level}, 2024')
         
 class SideBar:
-    def __init__(self, canvas):
+    def __init__(self, canvas, date):
         self.found_words = []
+        with open(PATH, 'r') as f:
+            data = json.load(f)
+            for word in data[date]['words']:
+                if data[date]['words'][word]:
+                    self.found_words.append(word)
         self.canvas = canvas
         self.sidebar_canvas = self._create_sidebar()
     
@@ -73,6 +80,8 @@ class SideBar:
         for i, word in enumerate(self.found_words):
             rounded_label.create_text(width/2, 50 + 30*i, text=word, font=("Arial", 15), fill="black", 
                                       anchor=tk.CENTER, tags="word")
+            
+        
 
         return rounded_label
     def update_sidebar(self, found_word):
@@ -108,16 +117,17 @@ class HexagonButton:
             self.typed_word_var.set(current_text + self.text)
 
 class GUI:
-    def __init__(self, canvas, letters, central_letter, words):
+    def __init__(self, canvas, letters, central_letter, words, date):
         self.canvas = canvas
         self.buttons = []
         self.letters = letters
         self.central_letter = central_letter
         self.words = words
+        self.date = date
         self.typed_word, self.input_line = self._create_input_line()
         self._create_buttons(letters, central_letter)
         self._create_control_buttons()
-        self.sidebar = SideBar(canvas)
+        self.sidebar = SideBar(canvas, date)
 
         self.canvas.bind_all("<Key>", self._on_key_press)
         
@@ -219,13 +229,21 @@ class GUI:
         if len(self.words) != 0:
             self.canvas.after(800, rounded_label.destroy)
         if message == "Nice!":
-
+            self.update_json(self.typed_word.get().lower())
             self.words.remove(self.typed_word.get().lower())
             if len(self.words) == 0:
                 self.display_message("You found all words!")
                 self.typed_word.set("")
                 
         self.typed_word.set("")
+    
+    def update_json(self, word):
+        with open(PATH, 'r') as f:
+            data = json.load(f)
+        data[self.date]['words'][word] = True
+        data[self.date]['words_guessed'] += 1
+        with open(PATH, 'w') as f:
+            json.dump(data, f, indent=4)
 
     def _on_key_press(self, event):
         # Check if the pressed key is a valid letter
