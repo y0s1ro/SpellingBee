@@ -38,7 +38,7 @@ class Menu:
             for level in range(1, 32):
                 if data[f'December {level}, 2024']['words_guessed']!=len(data[f'December {level}, 2024']['words'].keys()):
                     check_button = tk.Button(menu_frame, text=f"{level}\n{data[f'December {level}, 2024']['words_guessed']} words",
-                                              command=lambda lvl=level: self._start_game(f'December {level}, 2024'), **button_style)
+                                              command=lambda lvl=level: self._start_game(f'December {lvl}, 2024'), **button_style)
                     check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
                 else:
                     check_button = tk.Button(menu_frame, text=f"{level}\nCompleted", state='disabled', **button_style)
