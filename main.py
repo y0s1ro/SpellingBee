@@ -9,7 +9,7 @@ from parse_words import parse
 CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
 
-PATH = '/Users/yuriizaika/Documents/python/Projects/SpellingBee/words_ira.json' #Path to the file with words
+PATH = '/Users/yuriizaika/Documents/python/Projects/SpellingBee/words.json' #Path to the file with words
 
 class Menu:
     def __init__(self, root):
@@ -20,6 +20,7 @@ class Menu:
         self._create_menu()
     
     def _create_menu(self):
+        #Create the menu frame
         menu_frame = tk.Frame(self.canvas, bg="white")
         menu_frame.place(x=CANVAS_WIDTH/2, y=40, anchor=tk.N)
         start_text = tk.Label(self.canvas, text="Choose level to play", font=("Arial", 20), bg="white", fg="black")
@@ -33,6 +34,7 @@ class Menu:
             "relief": "flat", 
             "highlightbackground":"white"   
         }
+        #Create buttons for each level
         with open(PATH, 'r') as f:
             data = json.load(f)
             for level in range(1, 32):
@@ -43,7 +45,11 @@ class Menu:
                 else:
                     check_button = tk.Button(menu_frame, text=f"{level}\nCompleted", state='disabled', **button_style)
                     check_button.grid(row=(level-1)//6, column=(level-1)%6, padx=10, pady=10)
-
+        #Add last played level button
+        last_level_button = tk.Button(menu_frame, text=f"Last played\nlevel",
+                                              command=lambda lvl=level: self._start_game('Last level'), **button_style)
+        last_level_button.grid(row=5, column=1, padx=10, pady=10)
+        #Add input field to load level by date
         input_frame = tk.Frame(self.canvas, bg="white")
         input_frame.place(x=CANVAS_WIDTH/2, y=CANVAS_HEIGHT-100, anchor=tk.S)
 
@@ -68,6 +74,10 @@ class Menu:
 
     def _start_game(self, level):
         self.canvas.destroy()
+        if level == 'Last level':
+            with open(PATH, 'r') as f:
+                data = json.load(f)
+                level = data['Last level']
         words, letters, central_letter = read_words(PATH, level)
         game = tk.Canvas(self.root, width=CANVAS_WIDTH, height=CANVAS_HEIGHT, bg="white")
         game.pack()
@@ -151,12 +161,16 @@ class GUI:
         self.words = words
         self.date = date
         self.typed_word, self.input_line = self._create_input_line()
+        self._create_level_date()
         self._create_buttons(letters, central_letter)
         self._create_control_buttons()
         self.sidebar = SideBar(canvas, date)
 
         self.canvas.bind_all("<Key>", self._on_key_press)
-        
+    def _create_level_date(self):
+        level_date = tk.Label(self.canvas, text=self.date, font=("Arial", 20), bg="white", fg="black")
+        level_date.place(x=CANVAS_WIDTH/2-200, y=100, anchor=tk.CENTER)
+
     def _create_buttons(self, letters, central_letter):
         hex_centers = self._calculate_hexagons_centers(50, 0)
         #Create hexagons for each letter
@@ -244,6 +258,12 @@ class GUI:
 
     def _return_to_menu(self):
         self.canvas.destroy()
+        #Update the last played level
+        with open(PATH, 'r') as f:
+            data = json.load(f)
+        data['Last level'] = self.date
+        with open(PATH, 'w') as f:
+            json.dump(data, f, indent=4)
         Menu(self.canvas.master)
 
     def display_message(self, message):
@@ -315,6 +335,7 @@ def read_words(path, date):
     try:
         with open(path, 'r') as f:
             data = json.load(f)
+            
     except FileNotFoundError:
         return 'File not found'
     
