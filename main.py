@@ -10,7 +10,7 @@ CANVAS_WIDTH = 800
 CANVAS_HEIGHT = 800
 
 # Path to the file with words
-PATH = '/Users/yuriizaika/Documents/python/Projects/SpellingBee/words.json'
+PATH = 'words.json'
 
 class Menu:
     def __init__(self, root):

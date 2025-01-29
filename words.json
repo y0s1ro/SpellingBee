@@ -1,7 +1,7 @@
 {
-    "Last level": "December 3, 2024",
+    "Last level": "January 15, 2025",
     "December 1, 2024": {
-        "words_guessed": 3,
+        "words_guessed": 0,
         "central letter": "A",
         "letters": [
             "E",
@@ -12,8 +12,8 @@
             "D"
         ],
         "words": {
-            "abed": true,
-            "abide": true,
+            "abed": false,
+            "abide": false,
             "abided": false,
             "adage": false,
             "added": false,
@@ -26,7 +26,7 @@
             "babe": false,
             "babied": false,
             "baddie": false,
-            "bade": true,
+            "bade": false,
             "badge": false,
             "badged": false,
             "baggage": false,
@@ -57,7 +57,7 @@
         }
     },
     "December 2, 2024": {
-        "words_guessed": 0,
+        "words_guessed": 1,
         "central letter": "M",
         "letters": [
             "A",
@@ -93,7 +93,7 @@
             "loom": false,
             "mail": false,
             "maim": false,
-            "malic": false,
+            "malic": true,
             "mall": false,
             "mama": false,
             "mamma": false,
